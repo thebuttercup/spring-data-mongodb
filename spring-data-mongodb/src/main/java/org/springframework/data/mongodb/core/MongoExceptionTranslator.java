@@ -39,6 +39,7 @@ import org.springframework.util.ClassUtils;
 import com.mongodb.MongoBulkWriteException;
 import com.mongodb.MongoException;
 import com.mongodb.MongoServerException;
+import com.mongodb.MongoSocketOpenException;
 import com.mongodb.bulk.BulkWriteError;
 
 /**
@@ -129,6 +130,13 @@ public class MongoExceptionTranslator implements PersistenceExceptionTranslator 
 			} else if (MongoDbErrorCodes.isTransactionFailureCode(code)) {
 				return new MongoTransactionException(ex.getMessage(), ex);
 			}
+
+			if (ex instanceof com.mongodb.MongoSocketOpenException) {
+
+				MongoSocketOpenException mongoException = (MongoSocketOpenException) ex;
+				System.out.println(String.format("XXX: Error opening socket to %s", mongoException.getServerAddress()));
+			}
+
 			return new UncategorizedMongoDbException(ex.getMessage(), ex);
 		}
 
