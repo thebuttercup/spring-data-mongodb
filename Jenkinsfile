@@ -99,7 +99,7 @@ pipeline {
 			steps {
 				sh 'rm -rf ?'
 				sh 'mkdir -p /tmp/mongodb/db /tmp/mongodb/log'
-				sh 'mongod --setParameter enableTestCommands=1 --dbpath /tmp/mongodb/db --replSet rs0 --fork --logpath /tmp/mongodb/log/mongod.log &'
+				sh 'mongod --setParameter transactionLifetimeLimitSeconds=90 --dbpath /tmp/mongodb/db --replSet rs0 --fork --logpath /tmp/mongodb/log/mongod.log &'
 				sh 'sleep 10'
 				sh 'mongo --eval "rs.initiate({_id: \'rs0\', members:[{_id: 0, host: \'127.0.0.1:27017\'}]});"'
 				sh 'sleep 15'
@@ -127,7 +127,7 @@ pipeline {
 					steps {
 						sh 'rm -rf ?'
 						sh 'mkdir -p /tmp/mongodb/db /tmp/mongodb/log'
-						sh 'mongod --setParameter enableTestCommands=1 --dbpath /tmp/mongodb/db --replSet rs0 --fork --logpath /tmp/mongodb/log/mongod.log &'
+						sh 'mongod --setParameter transactionLifetimeLimitSeconds=90 --dbpath /tmp/mongodb/db --replSet rs0 --fork --logpath /tmp/mongodb/log/mongod.log &'
 						sh 'sleep 10'
 						sh 'mongo --eval "rs.initiate({_id: \'rs0\', members:[{_id: 0, host: \'127.0.0.1:27017\'}]});"'
 						sh 'sleep 15'
@@ -147,7 +147,7 @@ pipeline {
 					steps {
 						sh 'rm -rf ?'
 						sh 'mkdir -p /tmp/mongodb/db /tmp/mongodb/log'
-						sh 'mongod --setParameter enableTestCommands=1 --dbpath /tmp/mongodb/db --replSet rs0 --fork --logpath /tmp/mongodb/log/mongod.log &'
+						sh 'mongod --setParameter transactionLifetimeLimitSeconds=90 --dbpath /tmp/mongodb/db --replSet rs0 --fork --logpath /tmp/mongodb/log/mongod.log &'
 						sh 'sleep 10'
 						sh 'mongo --eval "rs.initiate({_id: \'rs0\', members:[{_id: 0, host: \'127.0.0.1:27017\'}]});"'
 						sh 'sleep 15'
@@ -167,7 +167,7 @@ pipeline {
 					steps {
 						sh 'rm -rf ?'
 						sh 'mkdir -p /tmp/mongodb/db /tmp/mongodb/log'
-						sh 'mongod --setParameter enableTestCommands=1 --dbpath /tmp/mongodb/db --replSet rs0 --fork --logpath /tmp/mongodb/log/mongod.log &'
+						sh 'mongod --setParameter transactionLifetimeLimitSeconds=90 --dbpath /tmp/mongodb/db --replSet rs0 --fork --logpath /tmp/mongodb/log/mongod.log &'
 						sh 'sleep 10'
 						sh 'mongo --eval "rs.initiate({_id: \'rs0\', members:[{_id: 0, host: \'127.0.0.1:27017\'}]});"'
 						sh 'sleep 15'
@@ -187,7 +187,7 @@ pipeline {
 					steps {
 						sh 'rm -rf ?'
 						sh 'mkdir -p /tmp/mongodb/db /tmp/mongodb/log'
-						sh 'mongod --setParameter enableTestCommands=1 --dbpath /tmp/mongodb/db --replSet rs0 --fork --logpath /tmp/mongodb/log/mongod.log &'
+						sh 'mongod --setParameter transactionLifetimeLimitSeconds=90 --dbpath /tmp/mongodb/db --replSet rs0 --fork --logpath /tmp/mongodb/log/mongod.log &'
 						sh 'sleep 10'
 						sh 'mongo --eval "rs.initiate({_id: \'rs0\', members:[{_id: 0, host: \'127.0.0.1:27017\'}]});"'
 						sh 'sleep 15'
