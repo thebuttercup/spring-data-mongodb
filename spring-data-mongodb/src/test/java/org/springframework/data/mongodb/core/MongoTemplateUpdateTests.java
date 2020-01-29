@@ -23,6 +23,10 @@ import java.util.Collection;
 import java.util.List;
 
 import lombok.EqualsAndHashCode;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -52,14 +56,23 @@ import com.mongodb.client.MongoCollection;
 class MongoTemplateUpdateTests {
 
 	static final String DB_NAME = "update-test";
+	private static MongoClient client;
 
-	MongoClient client;
 	MongoTemplate template;
+
+	@BeforeAll
+	static void beforeAll() {
+		client = MongoTestUtils.client();
+	}
+
+	@AfterAll
+	static void afterAll() {
+		client.close();
+	}
 
 	@BeforeEach
 	void setUp() {
 
-		client = MongoTestUtils.client();
 		template = new MongoTemplate(new SimpleMongoClientDatabaseFactory(client, DB_NAME));
 
 		MongoTestUtils.createOrReplaceCollection(DB_NAME, template.getCollectionName(Score.class), client);

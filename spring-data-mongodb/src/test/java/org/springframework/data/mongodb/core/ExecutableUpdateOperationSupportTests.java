@@ -19,12 +19,15 @@ import static org.assertj.core.api.Assertions.*;
 import static org.springframework.data.mongodb.core.query.Criteria.*;
 import static org.springframework.data.mongodb.core.query.Query.*;
 
+import com.mongodb.client.MongoClient;
 import lombok.Data;
 
 import java.util.Optional;
 
 import org.bson.BsonString;
+import org.junit.AfterClass;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Field;
@@ -43,16 +46,27 @@ import com.mongodb.client.result.UpdateResult;
 public class ExecutableUpdateOperationSupportTests {
 
 	private static final String STAR_WARS = "star-wars";
+	private static MongoClient client;
 	MongoTemplate template;
 
 	Person han;
 	Person luke;
 
+	@BeforeClass
+	public static void beforeClass() {
+		client = MongoTestUtils.client();
+	}
+
+	@AfterClass
+	public static void afterClass() {
+		client.close();
+	}
+
 	@Before
 	public void setUp() {
 
 		template = new MongoTemplate(
-				new SimpleMongoClientDatabaseFactory(MongoTestUtils.client(), "ExecutableUpdateOperationSupportTests"));
+				new SimpleMongoClientDatabaseFactory(client, "ExecutableUpdateOperationSupportTests"));
 		template.dropCollection(STAR_WARS);
 
 		han = new Person();

@@ -17,12 +17,15 @@ package org.springframework.data.mongodb.core;
 
 import static org.assertj.core.api.Assertions.*;
 
+import com.mongodb.client.MongoClient;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
 import java.util.List;
 
+import org.junit.AfterClass;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.domain.Example;
@@ -43,13 +46,25 @@ import org.springframework.data.mongodb.test.util.MongoTestUtils;
  */
 public class QueryByExampleTests {
 
+	private static MongoClient client;
+
 	MongoOperations operations;
 	Person p1, p2, p3;
+
+	@BeforeClass
+	public static void beforeClass() {
+		client = MongoTestUtils.client();
+	}
+
+	@AfterClass
+	public static void afterClass() {
+		client.close();
+	}
 
 	@Before
 	public void setUp() {
 
-		operations = new MongoTemplate(MongoTestUtils.client(), "query-by-example");
+		operations = new MongoTemplate(client, "query-by-example");
 		operations.remove(new Query(), Person.class);
 
 		p1 = new Person();

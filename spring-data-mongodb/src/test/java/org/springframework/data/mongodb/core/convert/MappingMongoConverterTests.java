@@ -28,7 +28,9 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.bson.Document;
+import org.junit.AfterClass;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.MongoDatabaseFactory;
@@ -46,16 +48,25 @@ import com.mongodb.client.MongoClient;
  */
 public class MappingMongoConverterTests {
 
-	MongoClient client;
+	private static MongoClient client;
 
 	MappingMongoConverter converter;
 	MongoMappingContext mappingContext;
 	DbRefResolver dbRefResolver;
 
+	@BeforeClass
+	public static void beforeClass() {
+		client = MongoTestUtils.client();
+	}
+
+	@AfterClass
+	public static void afterClass() {
+		client.close();
+	}
+
 	@Before
 	public void setUp() {
 
-		client = MongoTestUtils.client();
 		client.getDatabase("mapping-converter-tests").drop();
 
 		MongoDatabaseFactory factory = new SimpleMongoClientDatabaseFactory(client, "mapping-converter-tests");

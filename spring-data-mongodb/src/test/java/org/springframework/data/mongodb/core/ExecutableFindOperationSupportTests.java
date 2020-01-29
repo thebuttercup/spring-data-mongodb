@@ -19,6 +19,7 @@ import static org.assertj.core.api.Assertions.*;
 import static org.springframework.data.mongodb.core.query.Criteria.*;
 import static org.springframework.data.mongodb.core.query.Query.*;
 
+import com.mongodb.client.MongoClient;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -29,7 +30,9 @@ import java.util.stream.Stream;
 import org.bson.BsonString;
 import org.bson.BsonValue;
 import org.bson.Document;
+import org.junit.AfterClass;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.IncorrectResultSizeDataAccessException;
@@ -55,6 +58,7 @@ public class ExecutableFindOperationSupportTests {
 
 	private static final String STAR_WARS = "star-wars";
 	private static final String STAR_WARS_PLANETS = "star-wars-universe";
+	private static MongoClient client;
 	MongoTemplate template;
 
 	Person han;
@@ -63,11 +67,21 @@ public class ExecutableFindOperationSupportTests {
 	Planet alderan;
 	Planet dantooine;
 
+	@BeforeClass
+	public static void beforeClass() {
+		client = MongoTestUtils.client();
+	}
+
+	@AfterClass
+	public static void afterClass() {
+		client.close();
+	}
+
 	@Before
 	public void setUp() {
 
 		template = new MongoTemplate(
-				new SimpleMongoClientDatabaseFactory(MongoTestUtils.client(), "ExecutableFindOperationSupportTests"));
+				new SimpleMongoClientDatabaseFactory(client, "ExecutableFindOperationSupportTests"));
 		template.dropCollection(STAR_WARS);
 		template.dropCollection(STAR_WARS_PLANETS);
 

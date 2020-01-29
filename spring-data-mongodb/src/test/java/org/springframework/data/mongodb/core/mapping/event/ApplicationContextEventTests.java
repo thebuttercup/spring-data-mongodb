@@ -79,6 +79,12 @@ public class ApplicationContextEventTests {
 		mongo = MongoTestUtils.client();
 	}
 
+	@AfterClass
+	public static void afterClass() {
+		mongo.close();
+	}
+
+
 	@Before
 	public void setUp() {
 

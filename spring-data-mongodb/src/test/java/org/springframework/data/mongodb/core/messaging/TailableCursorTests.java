@@ -20,6 +20,7 @@ import static org.springframework.data.mongodb.core.query.Criteria.*;
 import static org.springframework.data.mongodb.core.query.Query.*;
 import static org.springframework.data.mongodb.test.util.Assertions.*;
 
+import com.mongodb.client.MongoClient;
 import lombok.Data;
 
 import java.util.concurrent.LinkedBlockingDeque;
@@ -51,6 +52,7 @@ public class TailableCursorTests {
 
 	static final String COLLECTION_NAME = "user";
 
+	private static MongoClient client;
 	static ThreadPoolExecutor executor;
 	MongoTemplate template;
 	MessageListenerContainer container;
@@ -59,15 +61,19 @@ public class TailableCursorTests {
 	User huffyFluffy;
 	User sugarSplashy;
 
+
+
 	@BeforeClass
 	public static void beforeClass() {
+
 		executor = new ThreadPoolExecutor(2, 2, 1, TimeUnit.SECONDS, new LinkedBlockingDeque<>());
+		client = MongoTestUtils.client();
 	}
 
 	@Before
 	public void setUp() {
 
-		template = new MongoTemplate(MongoTestUtils.client(), "tailable-cursor-tests");
+		template = new MongoTemplate(client, "tailable-cursor-tests");
 
 		template.dropCollection(User.class);
 		template.createCollection(User.class, CollectionOptions.empty().capped().maxDocuments(10000).size(10000));
@@ -98,7 +104,9 @@ public class TailableCursorTests {
 
 	@AfterClass
 	public static void afterClass() {
+
 		executor.shutdown();
+		client.close();
 	}
 
 	@Test // DATAMONGO-1803

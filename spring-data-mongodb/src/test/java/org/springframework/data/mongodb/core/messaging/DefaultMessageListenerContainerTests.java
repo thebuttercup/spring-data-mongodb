@@ -27,6 +27,10 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
 import org.bson.Document;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -42,6 +46,7 @@ import org.springframework.data.mongodb.test.util.MongoServerCondition;
 import org.springframework.data.mongodb.test.util.MongoTestUtils;
 import org.springframework.util.ErrorHandler;
 
+import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.CreateCollectionOptions;
 import com.mongodb.client.model.changestream.ChangeStreamDocument;
@@ -59,6 +64,7 @@ public class DefaultMessageListenerContainerTests {
 	public static final String COLLECTION_2_NAME = "collection-2";
 
 	public static final Duration TIMEOUT = Duration.ofSeconds(2);
+	private static MongoClient client;
 
 	MongoDatabaseFactory dbFactory;
 	MongoCollection<Document> collection;
@@ -67,10 +73,20 @@ public class DefaultMessageListenerContainerTests {
 	private CollectingMessageListener<Object, Object> messageListener;
 	private MongoTemplate template;
 
+	@BeforeAll
+	static void beforeAll() {
+		client = MongoTestUtils.client();
+	}
+
+	@AfterAll
+	static void afterAll() {
+		client.close();
+	}
+
 	@BeforeEach
 	void beforeEach() {
 
-		dbFactory = new SimpleMongoClientDatabaseFactory(MongoTestUtils.client(), DATABASE_NAME);
+		dbFactory = new SimpleMongoClientDatabaseFactory(client, DATABASE_NAME);
 		template = new MongoTemplate(dbFactory);
 
 		template.dropCollection(COLLECTION_NAME);
