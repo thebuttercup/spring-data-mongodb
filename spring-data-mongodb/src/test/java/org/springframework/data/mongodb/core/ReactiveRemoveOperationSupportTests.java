@@ -19,7 +19,10 @@ import static org.assertj.core.api.Assertions.*;
 import static org.springframework.data.mongodb.core.query.Criteria.*;
 import static org.springframework.data.mongodb.core.query.Query.*;
 
+import com.mongodb.client.MongoClient;
 import lombok.Data;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
 import reactor.test.StepVerifier;
 
 import org.junit.Before;
@@ -36,17 +39,34 @@ import org.springframework.data.mongodb.test.util.MongoTestUtils;
 public class ReactiveRemoveOperationSupportTests {
 
 	private static final String STAR_WARS = "star-wars";
+	static MongoClient client;
+	static com.mongodb.reactivestreams.client.MongoClient reactiveClient;
+
 	MongoTemplate blocking;
 	ReactiveMongoTemplate template;
 
 	Person han;
 	Person luke;
 
+	@BeforeClass
+	public static void beforeClass() {
+
+		client = MongoTestUtils.client();
+		reactiveClient = MongoTestUtils.reactiveClient();
+	}
+
+	@AfterClass
+	public static void afterClass() {
+
+		client.close();
+		reactiveClient.close();
+	}
+
 	@Before
 	public void setUp() {
 
 		blocking = new MongoTemplate(
-				new SimpleMongoClientDatabaseFactory(MongoTestUtils.client(), "ExecutableRemoveOperationSupportTests"));
+				new SimpleMongoClientDatabaseFactory(client, "ExecutableRemoveOperationSupportTests"));
 		blocking.dropCollection(STAR_WARS);
 
 		han = new Person();
@@ -60,7 +80,7 @@ public class ReactiveRemoveOperationSupportTests {
 		blocking.save(han);
 		blocking.save(luke);
 
-		template = new ReactiveMongoTemplate(MongoTestUtils.reactiveClient(), "ExecutableRemoveOperationSupportTests");
+		template = new ReactiveMongoTemplate(reactiveClient, "ExecutableRemoveOperationSupportTests");
 	}
 
 	@Test // DATAMONGO-1719

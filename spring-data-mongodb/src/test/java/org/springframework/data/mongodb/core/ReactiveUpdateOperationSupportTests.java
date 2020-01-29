@@ -23,13 +23,17 @@ import lombok.Data;
 import reactor.test.StepVerifier;
 
 import org.bson.BsonString;
+import org.junit.AfterClass;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Field;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.data.mongodb.test.util.MongoTestUtils;
+
+import com.mongodb.client.MongoClient;
 
 /**
  * Integration tests for {@link ReactiveUpdateOperationSupport}.
@@ -39,17 +43,34 @@ import org.springframework.data.mongodb.test.util.MongoTestUtils;
 public class ReactiveUpdateOperationSupportTests {
 
 	private static final String STAR_WARS = "star-wars";
+	static MongoClient client;
+	static com.mongodb.reactivestreams.client.MongoClient reactiveClient;
+
 	MongoTemplate blocking;
 	ReactiveMongoTemplate template;
 
 	Person han;
 	Person luke;
 
+	@BeforeClass
+	public static void beforeClass() {
+
+		client = MongoTestUtils.client();
+		reactiveClient = MongoTestUtils.reactiveClient();
+	}
+
+	@AfterClass
+	public static void afterClass() {
+
+		client.close();
+		reactiveClient.close();
+	}
+
 	@Before
 	public void setUp() {
 
 		blocking = new MongoTemplate(
-				new SimpleMongoClientDatabaseFactory(MongoTestUtils.client(), "ExecutableUpdateOperationSupportTests"));
+				new SimpleMongoClientDatabaseFactory(client, "ExecutableUpdateOperationSupportTests"));
 		blocking.dropCollection(STAR_WARS);
 
 		han = new Person();
@@ -63,7 +84,7 @@ public class ReactiveUpdateOperationSupportTests {
 		blocking.save(han);
 		blocking.save(luke);
 
-		template = new ReactiveMongoTemplate(MongoTestUtils.reactiveClient(), "ExecutableUpdateOperationSupportTests");
+		template = new ReactiveMongoTemplate(reactiveClient, "ExecutableUpdateOperationSupportTests");
 	}
 
 	@Test // DATAMONGO-1719

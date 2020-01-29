@@ -19,9 +19,12 @@ import static org.assertj.core.api.Assertions.*;
 import static org.springframework.data.mongodb.core.query.Criteria.*;
 import static org.springframework.data.mongodb.core.query.Query.*;
 
+import com.mongodb.client.MongoClient;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
 import reactor.core.Disposable;
 import reactor.core.publisher.Flux;
 import reactor.test.StepVerifier;
@@ -62,19 +65,36 @@ public class ReactiveFindOperationSupportTests {
 	MongoTemplate blocking;
 	ReactiveMongoTemplate template;
 
+	static MongoClient client;
+	static com.mongodb.reactivestreams.client.MongoClient reactiveClient;
+
 	Person han;
 	Person luke;
+
+	@BeforeClass
+	public static void beforeClass() {
+
+		client = MongoTestUtils.client();
+		reactiveClient = MongoTestUtils.reactiveClient();
+	}
+
+	@AfterClass
+	public static void afterClass() {
+
+		client.close();
+		reactiveClient.close();
+	}
 
 	@Before
 	public void setUp() {
 
 		blocking = new MongoTemplate(
-				new SimpleMongoClientDatabaseFactory(MongoTestUtils.client(), "ExecutableFindOperationSupportTests"));
+				new SimpleMongoClientDatabaseFactory(client, "ExecutableFindOperationSupportTests"));
 		recreateCollection(STAR_WARS, false);
 
 		insertObjects();
 
-		template = new ReactiveMongoTemplate(MongoTestUtils.reactiveClient(), "ExecutableFindOperationSupportTests");
+		template = new ReactiveMongoTemplate(reactiveClient, "ExecutableFindOperationSupportTests");
 	}
 
 	void insertObjects() {

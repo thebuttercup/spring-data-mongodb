@@ -29,7 +29,6 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
-
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Field;
 import org.springframework.data.mongodb.core.schema.MongoJsonSchema;
@@ -38,8 +37,6 @@ import org.springframework.data.mongodb.test.util.MongoVersionRule;
 import org.springframework.data.util.Version;
 
 import com.mongodb.client.MongoClient;
-import com.mongodb.client.MongoClients;
-
 
 /**
  * @author Christoph Strobl
@@ -51,13 +48,24 @@ public class JsonSchemaQueryTests {
 
 	public static @ClassRule MongoVersionRule REQUIRES_AT_LEAST_3_6_0 = MongoVersionRule.atLeast(Version.parse("3.6.0"));
 
-	static MongoClient client = MongoTestUtils.client();
+	static MongoClient client;
+	static com.mongodb.reactivestreams.client.MongoClient reactiveClient;
+
 	MongoTemplate template;
 	Person jellyBelly, roseSpringHeart, kazmardBoombub;
 
 	@BeforeClass
 	public static void beforeClass() {
+
 		client = MongoTestUtils.client();
+		reactiveClient = MongoTestUtils.reactiveClient();
+	}
+
+	@AfterClass
+	public static void afterClass() {
+
+		client.close();
+		reactiveClient.close();
 	}
 
 	@Before
@@ -108,10 +116,9 @@ public class JsonSchemaQueryTests {
 
 		MongoJsonSchema schema = MongoJsonSchema.builder().required("address").build();
 
-		com.mongodb.reactivestreams.client.MongoClient mongoClient = MongoTestUtils.reactiveClient();
-
-		new ReactiveMongoTemplate(mongoClient, DATABASE_NAME).find(query(matchingDocumentStructure(schema)), Person.class)
-				.as(StepVerifier::create).expectNextCount(2).verifyComplete();
+		new ReactiveMongoTemplate(reactiveClient, DATABASE_NAME)
+				.find(query(matchingDocumentStructure(schema)), Person.class).as(StepVerifier::create).expectNextCount(2)
+				.verifyComplete();
 	}
 
 	@Test // DATAMONGO-1835
@@ -198,8 +205,8 @@ public class JsonSchemaQueryTests {
 
 		MongoJsonSchema schema = MongoJsonSchema.builder().required("address").build();
 
-		assertThat(template.find(query(matchingDocumentStructure(schema)), Document.class, template.getCollectionName(Person.class)))
-				.hasSize(2);
+		assertThat(template.find(query(matchingDocumentStructure(schema)), Document.class,
+				template.getCollectionName(Person.class))).hasSize(2);
 	}
 
 	@Data

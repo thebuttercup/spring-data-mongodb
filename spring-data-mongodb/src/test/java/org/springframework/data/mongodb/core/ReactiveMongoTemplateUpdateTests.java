@@ -18,6 +18,10 @@ package org.springframework.data.mongodb.core;
 import static org.assertj.core.api.Assertions.*;
 
 import lombok.EqualsAndHashCode;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import reactor.core.publisher.Flux;
 import reactor.test.StepVerifier;
 
@@ -56,13 +60,22 @@ public class ReactiveMongoTemplateUpdateTests {
 
 	static final String DB_NAME = "reactive-update-test";
 
-	MongoClient client;
+	static MongoClient client;
 	ReactiveMongoTemplate template;
+
+	@BeforeAll
+	static void beforeAll() {
+		client = MongoTestUtils.reactiveClient();
+	}
+
+	@AfterAll
+	static void afterAll() {
+		client.close();
+	}
 
 	@BeforeEach
 	void beforeEach() {
 
-		client = MongoTestUtils.reactiveClient();
 		template = new ReactiveMongoTemplate(new SimpleReactiveMongoDatabaseFactory(client, DB_NAME));
 
 		MongoTestUtils.createOrReplaceCollection(DB_NAME, template.getCollectionName(Score.class), client).then()
