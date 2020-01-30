@@ -17,16 +17,14 @@ package org.springframework.data.mongodb.core;
 
 import static org.assertj.core.api.Assertions.*;
 
-import com.mongodb.client.MongoClient;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
 import java.util.List;
 
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.ExampleMatcher;
@@ -35,7 +33,10 @@ import org.springframework.data.mongodb.core.mapping.Field;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.UntypedExampleMatcher;
-import org.springframework.data.mongodb.test.util.MongoTestUtils;
+import org.springframework.data.mongodb.test.util.Client;
+import org.springframework.data.mongodb.test.util.MongoClientExtension;
+
+import com.mongodb.client.MongoClient;
 
 /**
  * Integration tests for Query-by-example.
@@ -44,27 +45,18 @@ import org.springframework.data.mongodb.test.util.MongoTestUtils;
  * @author Mark Paluch
  * @author Oliver Gierke
  */
+@ExtendWith(MongoClientExtension.class)
 public class QueryByExampleTests {
 
-	private static MongoClient client;
+	static @Client MongoClient mongoClient;
 
 	MongoOperations operations;
 	Person p1, p2, p3;
 
-	@BeforeClass
-	public static void beforeClass() {
-		client = MongoTestUtils.client();
-	}
-
-	@AfterClass
-	public static void afterClass() {
-		client.close();
-	}
-
-	@Before
+	@BeforeEach
 	public void setUp() {
 
-		operations = new MongoTemplate(client, "query-by-example");
+		operations = new MongoTemplate(mongoClient, "query-by-example");
 		operations.remove(new Query(), Person.class);
 
 		p1 = new Person();

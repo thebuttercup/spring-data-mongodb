@@ -24,17 +24,14 @@ import lombok.Data;
 import reactor.test.StepVerifier;
 
 import org.bson.Document;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Field;
 import org.springframework.data.mongodb.core.schema.MongoJsonSchema;
-import org.springframework.data.mongodb.test.util.MongoTestUtils;
-import org.springframework.data.mongodb.test.util.MongoVersionRule;
-import org.springframework.data.util.Version;
+import org.springframework.data.mongodb.test.util.Client;
+import org.springframework.data.mongodb.test.util.MongoClientExtension;
 
 import com.mongodb.client.MongoClient;
 
@@ -42,33 +39,18 @@ import com.mongodb.client.MongoClient;
  * @author Christoph Strobl
  * @author Mark Paluch
  */
+@ExtendWith(MongoClientExtension.class)
 public class JsonSchemaQueryTests {
 
 	public static final String DATABASE_NAME = "json-schema-query-tests";
 
-	public static @ClassRule MongoVersionRule REQUIRES_AT_LEAST_3_6_0 = MongoVersionRule.atLeast(Version.parse("3.6.0"));
-
-	static MongoClient client;
-	static com.mongodb.reactivestreams.client.MongoClient reactiveClient;
+	static @Client MongoClient client;
+	static @Client com.mongodb.reactivestreams.client.MongoClient reactiveClient;
 
 	MongoTemplate template;
 	Person jellyBelly, roseSpringHeart, kazmardBoombub;
 
-	@BeforeClass
-	public static void beforeClass() {
-
-		client = MongoTestUtils.client();
-		reactiveClient = MongoTestUtils.reactiveClient();
-	}
-
-	@AfterClass
-	public static void afterClass() {
-
-		client.close();
-		reactiveClient.close();
-	}
-
-	@Before
+	@BeforeEach
 	public void setUp() {
 
 		template = new MongoTemplate(client, DATABASE_NAME);

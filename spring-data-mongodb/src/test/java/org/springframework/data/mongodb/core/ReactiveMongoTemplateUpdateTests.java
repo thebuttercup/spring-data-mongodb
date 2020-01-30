@@ -18,10 +18,6 @@ package org.springframework.data.mongodb.core;
 import static org.assertj.core.api.Assertions.*;
 
 import lombok.EqualsAndHashCode;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
 import reactor.core.publisher.Flux;
 import reactor.test.StepVerifier;
 
@@ -31,7 +27,6 @@ import java.util.Collection;
 import java.util.List;
 
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.data.annotation.Id;
@@ -44,8 +39,9 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.test.util.Client;
 import org.springframework.data.mongodb.test.util.EnableIfMongoServerVersion;
-import org.springframework.data.mongodb.test.util.MongoServerCondition;
+import org.springframework.data.mongodb.test.util.MongoClientExtension;
 import org.springframework.data.mongodb.test.util.MongoTestUtils;
 
 import com.mongodb.reactivestreams.client.MongoClient;
@@ -54,24 +50,14 @@ import com.mongodb.reactivestreams.client.MongoCollection;
 /**
  * @author Christoph Strobl
  */
-@ExtendWith(MongoServerCondition.class)
+@ExtendWith(MongoClientExtension.class)
 @EnableIfMongoServerVersion(isGreaterThanEqual = "4.2")
 public class ReactiveMongoTemplateUpdateTests {
 
 	static final String DB_NAME = "reactive-update-test";
 
-	static MongoClient client;
+	static @Client MongoClient client;
 	ReactiveMongoTemplate template;
-
-	@BeforeAll
-	static void beforeAll() {
-		client = MongoTestUtils.reactiveClient();
-	}
-
-	@AfterAll
-	static void afterAll() {
-		client.close();
-	}
 
 	@BeforeEach
 	void beforeEach() {

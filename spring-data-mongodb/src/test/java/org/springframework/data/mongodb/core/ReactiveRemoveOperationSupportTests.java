@@ -19,28 +19,30 @@ import static org.assertj.core.api.Assertions.*;
 import static org.springframework.data.mongodb.core.query.Criteria.*;
 import static org.springframework.data.mongodb.core.query.Query.*;
 
-import com.mongodb.client.MongoClient;
 import lombok.Data;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
 import reactor.test.StepVerifier;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Field;
-import org.springframework.data.mongodb.test.util.MongoTestUtils;
+import org.springframework.data.mongodb.test.util.Client;
+import org.springframework.data.mongodb.test.util.MongoClientExtension;
+
+import com.mongodb.client.MongoClient;
 
 /**
  * Integration tests for {@link ReactiveRemoveOperationSupport}.
  *
  * @author Mark Paluch
  */
+@ExtendWith(MongoClientExtension.class)
 public class ReactiveRemoveOperationSupportTests {
 
 	private static final String STAR_WARS = "star-wars";
-	static MongoClient client;
-	static com.mongodb.reactivestreams.client.MongoClient reactiveClient;
+	static @Client MongoClient client;
+	static @Client com.mongodb.reactivestreams.client.MongoClient reactiveClient;
 
 	MongoTemplate blocking;
 	ReactiveMongoTemplate template;
@@ -48,25 +50,10 @@ public class ReactiveRemoveOperationSupportTests {
 	Person han;
 	Person luke;
 
-	@BeforeClass
-	public static void beforeClass() {
-
-		client = MongoTestUtils.client();
-		reactiveClient = MongoTestUtils.reactiveClient();
-	}
-
-	@AfterClass
-	public static void afterClass() {
-
-		client.close();
-		reactiveClient.close();
-	}
-
-	@Before
+	@BeforeEach
 	public void setUp() {
 
-		blocking = new MongoTemplate(
-				new SimpleMongoClientDatabaseFactory(client, "ExecutableRemoveOperationSupportTests"));
+		blocking = new MongoTemplate(new SimpleMongoClientDatabaseFactory(client, "ExecutableRemoveOperationSupportTests"));
 		blocking.dropCollection(STAR_WARS);
 
 		han = new Person();

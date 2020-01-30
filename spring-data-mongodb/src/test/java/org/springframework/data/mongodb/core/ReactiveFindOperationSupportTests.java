@@ -19,12 +19,9 @@ import static org.assertj.core.api.Assertions.*;
 import static org.springframework.data.mongodb.core.query.Criteria.*;
 import static org.springframework.data.mongodb.core.query.Query.*;
 
-import com.mongodb.client.MongoClient;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
 import reactor.core.Disposable;
 import reactor.core.publisher.Flux;
 import reactor.test.StepVerifier;
@@ -38,8 +35,9 @@ import java.util.function.Consumer;
 import org.bson.BsonString;
 import org.bson.BsonValue;
 import org.bson.Document;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.IncorrectResultSizeDataAccessException;
 import org.springframework.dao.InvalidDataAccessApiUsageException;
@@ -51,7 +49,10 @@ import org.springframework.data.mongodb.core.mapping.Field;
 import org.springframework.data.mongodb.core.query.BasicQuery;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.NearQuery;
-import org.springframework.data.mongodb.test.util.MongoTestUtils;
+import org.springframework.data.mongodb.test.util.Client;
+import org.springframework.data.mongodb.test.util.MongoClientExtension;
+
+import com.mongodb.client.MongoClient;
 
 /**
  * Integration tests for {@link ReactiveFindOperationSupport}.
@@ -59,37 +60,23 @@ import org.springframework.data.mongodb.test.util.MongoTestUtils;
  * @author Mark Paluch
  * @author Christoph Strobl
  */
+@ExtendWith(MongoClientExtension.class)
 public class ReactiveFindOperationSupportTests {
 
 	private static final String STAR_WARS = "star-wars";
 	MongoTemplate blocking;
 	ReactiveMongoTemplate template;
 
-	static MongoClient client;
-	static com.mongodb.reactivestreams.client.MongoClient reactiveClient;
+	static @Client MongoClient client;
+	static @Client com.mongodb.reactivestreams.client.MongoClient reactiveClient;
 
 	Person han;
 	Person luke;
 
-	@BeforeClass
-	public static void beforeClass() {
-
-		client = MongoTestUtils.client();
-		reactiveClient = MongoTestUtils.reactiveClient();
-	}
-
-	@AfterClass
-	public static void afterClass() {
-
-		client.close();
-		reactiveClient.close();
-	}
-
-	@Before
+	@BeforeEach
 	public void setUp() {
 
-		blocking = new MongoTemplate(
-				new SimpleMongoClientDatabaseFactory(client, "ExecutableFindOperationSupportTests"));
+		blocking = new MongoTemplate(new SimpleMongoClientDatabaseFactory(client, "ExecutableFindOperationSupportTests"));
 		recreateCollection(STAR_WARS, false);
 
 		insertObjects();

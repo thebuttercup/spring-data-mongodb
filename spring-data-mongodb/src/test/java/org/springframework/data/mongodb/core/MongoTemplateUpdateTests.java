@@ -17,18 +17,14 @@ package org.springframework.data.mongodb.core;
 
 import static org.assertj.core.api.Assertions.*;
 
+import lombok.EqualsAndHashCode;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
-import lombok.EqualsAndHashCode;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.data.annotation.Id;
@@ -42,7 +38,9 @@ import org.springframework.data.mongodb.core.mapping.Field;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
+import org.springframework.data.mongodb.test.util.Client;
 import org.springframework.data.mongodb.test.util.EnableIfMongoServerVersion;
+import org.springframework.data.mongodb.test.util.MongoClientExtension;
 import org.springframework.data.mongodb.test.util.MongoServerCondition;
 import org.springframework.data.mongodb.test.util.MongoTestUtils;
 
@@ -52,23 +50,14 @@ import com.mongodb.client.MongoCollection;
 /**
  * @author Christoph Strobl
  */
-@ExtendWith(MongoServerCondition.class)
+@ExtendWith({ MongoClientExtension.class, MongoServerCondition.class })
 class MongoTemplateUpdateTests {
 
 	static final String DB_NAME = "update-test";
-	private static MongoClient client;
+
+	static @Client MongoClient client;
 
 	MongoTemplate template;
-
-	@BeforeAll
-	static void beforeAll() {
-		client = MongoTestUtils.client();
-	}
-
-	@AfterAll
-	static void afterAll() {
-		client.close();
-	}
 
 	@BeforeEach
 	void setUp() {

@@ -19,7 +19,6 @@ import static org.assertj.core.api.Assertions.*;
 import static org.springframework.data.mongodb.core.query.Criteria.*;
 import static org.springframework.data.mongodb.core.query.Query.*;
 
-import com.mongodb.client.MongoClient;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -30,10 +29,9 @@ import java.util.stream.Stream;
 import org.bson.BsonString;
 import org.bson.BsonValue;
 import org.bson.Document;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.IncorrectResultSizeDataAccessException;
 import org.springframework.dao.InvalidDataAccessApiUsageException;
@@ -46,7 +44,10 @@ import org.springframework.data.mongodb.core.index.GeospatialIndex;
 import org.springframework.data.mongodb.core.mapping.Field;
 import org.springframework.data.mongodb.core.query.BasicQuery;
 import org.springframework.data.mongodb.core.query.NearQuery;
-import org.springframework.data.mongodb.test.util.MongoTestUtils;
+import org.springframework.data.mongodb.test.util.Client;
+import org.springframework.data.mongodb.test.util.MongoClientExtension;
+
+import com.mongodb.client.MongoClient;
 
 /**
  * Integration tests for {@link ExecutableFindOperationSupport}.
@@ -54,11 +55,12 @@ import org.springframework.data.mongodb.test.util.MongoTestUtils;
  * @author Christoph Strobl
  * @author Mark Paluch
  */
+@ExtendWith(MongoClientExtension.class)
 public class ExecutableFindOperationSupportTests {
 
 	private static final String STAR_WARS = "star-wars";
 	private static final String STAR_WARS_PLANETS = "star-wars-universe";
-	private static MongoClient client;
+	static @Client MongoClient mongoClient;
 	MongoTemplate template;
 
 	Person han;
@@ -67,21 +69,11 @@ public class ExecutableFindOperationSupportTests {
 	Planet alderan;
 	Planet dantooine;
 
-	@BeforeClass
-	public static void beforeClass() {
-		client = MongoTestUtils.client();
-	}
-
-	@AfterClass
-	public static void afterClass() {
-		client.close();
-	}
-
-	@Before
+	@BeforeEach
 	public void setUp() {
 
 		template = new MongoTemplate(
-				new SimpleMongoClientDatabaseFactory(client, "ExecutableFindOperationSupportTests"));
+				new SimpleMongoClientDatabaseFactory(mongoClient, "ExecutableFindOperationSupportTests"));
 		template.dropCollection(STAR_WARS);
 		template.dropCollection(STAR_WARS_PLANETS);
 

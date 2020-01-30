@@ -25,13 +25,11 @@ import reactor.test.StepVerifier;
 import java.time.Duration;
 
 import org.bson.types.ObjectId;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
-import org.junit.rules.RuleChain;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -40,11 +38,12 @@ import org.springframework.data.mongodb.config.AbstractReactiveMongoConfiguratio
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.test.util.Client;
+import org.springframework.data.mongodb.test.util.EnableIfMongoServerVersion;
+import org.springframework.data.mongodb.test.util.EnableIfReplicaSetAvailable;
+import org.springframework.data.mongodb.test.util.MongoClientExtension;
+import org.springframework.data.mongodb.test.util.MongoServerCondition;
 import org.springframework.data.mongodb.test.util.MongoTestUtils;
-import org.springframework.data.mongodb.test.util.MongoVersionRule;
-import org.springframework.data.mongodb.test.util.ReplicaSet;
-import org.springframework.data.util.Version;
-import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.reactive.TransactionalOperator;
 import org.springframework.transaction.support.DefaultTransactionDefinition;
@@ -57,28 +56,30 @@ import com.mongodb.reactivestreams.client.MongoClient;
  * @author Mark Paluch
  * @author Christoph Strobl
  */
-@RunWith(SpringRunner.class)
+@ExtendWith({ MongoServerCondition.class, MongoClientExtension.class })
+@EnableIfMongoServerVersion(isGreaterThanEqual = "4.0")
+@EnableIfReplicaSetAvailable
 public class ReactiveTransactionIntegrationTests {
 
-	public static @ClassRule RuleChain TEST_RULES = RuleChain.outerRule(MongoVersionRule.atLeast(Version.parse("4.0.0")))
-			.around(ReplicaSet.required());
-
 	private static final String DATABASE = "rxtx-test";
-	PersonService personService;
-	ReactiveMongoOperations operations;
+
+	static @Client MongoClient mongoClient;
 	static GenericApplicationContext context;
 
-	@BeforeClass
+	PersonService personService;
+	ReactiveMongoOperations operations;
+
+	@BeforeAll
 	public static void init() {
 		context = new AnnotationConfigApplicationContext(TestMongoConfig.class, PersonService.class);
 	}
 
-	@AfterClass
+	@AfterAll
 	public static void after() {
 		context.close();
 	}
 
-	@Before
+	@BeforeEach
 	public void setUp() {
 
 		personService = context.getBean(PersonService.class);
@@ -223,7 +224,7 @@ public class ReactiveTransactionIntegrationTests {
 
 		@Override
 		public MongoClient reactiveMongoClient() {
-			return MongoTestUtils.reactiveClient();
+			return mongoClient;
 		}
 
 		@Override
