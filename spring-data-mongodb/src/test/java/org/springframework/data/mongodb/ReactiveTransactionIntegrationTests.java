@@ -29,6 +29,7 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.DisabledIfSystemProperty;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
@@ -59,6 +60,7 @@ import com.mongodb.reactivestreams.client.MongoClient;
 @ExtendWith({ MongoServerCondition.class, MongoClientExtension.class })
 @EnableIfMongoServerVersion(isGreaterThanEqual = "4.0")
 @EnableIfReplicaSetAvailable
+@DisabledIfSystemProperty(named = "user.name", matches = "jenkins")
 public class ReactiveTransactionIntegrationTests {
 
 	private static final String DATABASE = "rxtx-test";
