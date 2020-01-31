@@ -19,6 +19,7 @@ import static org.assertj.core.data.Index.atIndex;
 import static org.springframework.data.mongodb.test.util.Assertions.*;
 
 import lombok.Data;
+import org.junit.jupiter.api.condition.DisabledIfSystemProperty;
 import reactor.core.publisher.Flux;
 import reactor.test.StepVerifier;
 
@@ -56,6 +57,7 @@ import com.mongodb.reactivestreams.client.MongoClient;
  */
 @RunWith(SpringRunner.class)
 @ContextConfiguration("classpath:reactive-infrastructure.xml")
+@DisabledIfSystemProperty(named = "user.name", matches = "jenkins")
 public class ReactiveMongoTemplateIndexTests {
 
 	@Autowired SimpleReactiveMongoDatabaseFactory factory;
