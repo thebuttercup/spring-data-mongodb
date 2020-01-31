@@ -87,7 +87,7 @@ public class ReactiveTransactionIntegrationTests {
 
 		try (MongoClient client = MongoTestUtils.reactiveClient()) {
 
-			Flux.concat( //
+			Flux.merge( //
 					MongoTestUtils.createOrReplaceCollection(DATABASE, operations.getCollectionName(Person.class), client),
 					MongoTestUtils.createOrReplaceCollection(DATABASE, operations.getCollectionName(EventLog.class), client) //
 			).then().as(StepVerifier::create).verifyComplete();
